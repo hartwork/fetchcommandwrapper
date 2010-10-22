@@ -9,13 +9,14 @@ LINK_SPEED_BYTES = 600 * 1024
 import sys
 
 # Greeting
-print 'fetchcommandwrapper', '.'.join(str(e) for e in (0, 1))
+VERSION = (0, 2)
+print 'fetchcommandwrapper', '.'.join(str(e) for e in VERSION)
 print
 
 
 # Command line argument parsing
-if len(sys.argv) != 4:
-    print >>sys.stderr, 'USAGE: %s --continue|--fresh URI DISTDIR' % sys.argv[0]
+if len(sys.argv) != 5:
+    print >>sys.stderr, 'USAGE: %s --continue|--fresh URI DISTDIR FILE' % sys.argv[0]
     sys.exit(1)
 
 if sys.argv[1] == '--continue':
@@ -23,11 +24,12 @@ if sys.argv[1] == '--continue':
 elif sys.argv[1] == '--fresh':
     continue_flag = False
 else:
-    print >>sys.stderr, 'USAGE: %s --continue|--fresh URI DISTDIR' % sys.argv[0]
+    print >>sys.stderr, 'USAGE: %s --continue|--fresh URI DISTDIR FILE' % sys.argv[0]
     sys.exit(1)
 
 uri=sys.argv[2]
 distdir=sys.argv[3].rstrip('/')
+file_basename=sys.argv[4]
 
 import os
 
@@ -39,9 +41,15 @@ if not os.path.isdir(distdir):
     print >>sys.stderr, 'ERROR: Path "%s" not a directory' % distdir
     sys.exit(1)
 
-print 'Requested URI:\n  ' + uri
-print
-print 'Distdir:\n  ' + distdir
+if continue_flag:
+    file_fullpath = os.path.join(distdir, file_basename)
+    if not os.path.isfile(file_fullpath):
+        print >>sys.stderr, 'ERROR: Path "%s" not an existing file' % file_fullpath
+        sys.exit(1)
+
+print 'URI = ' + uri
+print 'DISTDIR = ' + distdir
+print 'FILE = ' + file_basename
 print
 
 
@@ -97,7 +105,7 @@ print 'Targetting %d connections, additional %d for backup' \
     % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
 print
 
-args = ['/usr/bin/aria2c', '-d', distdir]
+args = ['/usr/bin/aria2c', '-d', distdir, '-o', file_basename]
 if drop_slow_links:
     args.append('--lowest-speed-limit=%s' % wanted_minimum_link_speed)
 if continue_flag:
