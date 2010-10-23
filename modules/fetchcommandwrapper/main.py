@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # Copyright (C) 2010 Sebastian Pipping <sebastian@pipping.org>
+# Copyright (C) 2010 Andrew Karpow <andy@mailbox.tu-berlin.de>
 # Licensed under GPL v3 or later
 
 MAX_STREAMS = 5
@@ -9,7 +10,7 @@ LINK_SPEED_BYTES = 600 * 1024
 import sys
 
 # Greeting
-VERSION = (0, 2)
+VERSION = (0, 3)
 print 'fetchcommandwrapper', '.'.join(str(e) for e in VERSION)
 print
 
@@ -32,17 +33,30 @@ distdir=sys.argv[3].rstrip('/')
 file_basename=sys.argv[4]
 
 import os
+import subprocess
+
+file_fullpath = os.path.join(distdir, file_basename)
 
 if not os.path.exists('/usr/bin/aria2c'):
-    print >>sys.stderr, 'ERROR: net-misc/aria2 not installed'
-    sys.exit(1)
+    print >>sys.stderr, 'ERROR: net-misc/aria2 not installed, falling back to net-misc/wget'
+    args = ['/usr/bin/wget', '-O', file_fullpath]
+    args.append('--tries=5')
+    args.append('--timeout=60')
+    args.append('--passive-ftp')
+    if continue_flag:
+        args.append('--continue')
+    args.append(uri)
+
+    # Invoke wget
+    print 'Running... #', ' '.join(args)
+    ret = subprocess.call(args)
+    sys.exit(ret)
 
 if not os.path.isdir(distdir):
     print >>sys.stderr, 'ERROR: Path "%s" not a directory' % distdir
     sys.exit(1)
 
 if continue_flag:
-    file_fullpath = os.path.join(distdir, file_basename)
     if not os.path.isfile(file_fullpath):
         print >>sys.stderr, 'ERROR: Path "%s" not an existing file' % file_fullpath
         sys.exit(1)
@@ -54,7 +68,6 @@ print
 
 
 # Collect mirror URIs
-import subprocess
 
 def gentoo_mirrors():
     p = subprocess.Popen(['/bin/bash', '-c', 'source /etc/make.conf; echo ${GENTOO_MIRRORS}'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
