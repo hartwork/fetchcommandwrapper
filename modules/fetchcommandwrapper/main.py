@@ -86,15 +86,17 @@ def supported(uri):
 
 supported_mirror_uris = [e for e in mirror_uris if supported(e)]
 
-print 'Involved mirrors:'
-print '\n'.join('  - ' + e for e in supported_mirror_uris)
-print '  (%d mirrors)' % len(supported_mirror_uris)
-print
 
-if len(supported_mirror_uris) < MAX_STREAMS:
-    print >>sys.stderr, 'WARNING:  Please specify at least %d URIs in GENTOO_MIRRORS.' % MAX_STREAMS
-    print >>sys.stderr, '          The more the better.'
-    print >>sys.stderr
+def print_mirror_details():
+    print 'Involved mirrors:'
+    print '\n'.join('  - ' + e for e in supported_mirror_uris)
+    print '  (%d mirrors)' % len(supported_mirror_uris)
+    print
+
+    if len(supported_mirror_uris) < MAX_STREAMS:
+        print >>sys.stderr, 'WARNING:  Please specify at least %d URIs in GENTOO_MIRRORS.' % MAX_STREAMS
+        print >>sys.stderr, '          The more the better.'
+        print >>sys.stderr
 
 
 # Make list of URIs
@@ -108,11 +110,15 @@ for i, mirror_uri in enumerate(supported_mirror_uris):
             print >>sys.stderr, 'ERROR: All Gentoo mirrors tried already, exiting.'
             sys.exit(1)
 
+        print_mirror_details()
+
         local_part = uri[len(mirror_uri):]
         final_uris = [e + local_part for e in supported_mirror_uris]
         import random
         random.shuffle(final_uris)
         break
+
+
 
 
 # Compose call arguments
@@ -123,9 +129,11 @@ if len(final_uris) > MAX_STREAMS:
 else:
     drop_slow_links = False
 
-print 'Targetting %d random connections, additional %d for backup' \
-    % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
-print
+if len(final_uris) > 1:
+    print 'Targetting %d random connections, additional %d for backup' \
+        % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
+    print
+
 
 args = ['/usr/bin/aria2c', '-d', distdir, '-o', file_basename]
 if drop_slow_links:
