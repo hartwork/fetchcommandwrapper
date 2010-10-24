@@ -101,6 +101,13 @@ if len(supported_mirror_uris) < MAX_STREAMS:
 final_uris = [uri, ]
 for i, mirror_uri in enumerate(supported_mirror_uris):
     if uri.startswith(mirror_uri):
+        if i != 0:
+            # Portage calls us for each mirror URI. Therefore we need to error out
+            # on all but the first one, so we try each mirrror once, at most.
+            # This happens, when a file is not mirrored, e.g. with sunrise ebuilds.
+            print >>sys.stderr, 'ERROR: All Gentoo mirrors tried already, exiting.'
+            sys.exit(1)
+
         local_part = uri[len(mirror_uri):]
         final_uris = [e + local_part for e in supported_mirror_uris[i:]]
         break
