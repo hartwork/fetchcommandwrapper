@@ -10,7 +10,7 @@ LINK_SPEED_BYTES = 600 * 1024
 import sys
 
 # Greeting
-VERSION = (0, 3)
+VERSION = (0, 4)
 print 'fetchcommandwrapper', '.'.join(str(e) for e in VERSION)
 print
 
@@ -93,7 +93,7 @@ print
 
 if len(supported_mirror_uris) < MAX_STREAMS:
     print >>sys.stderr, 'WARNING:  Please specify at least %d URIs in GENTOO_MIRRORS.' % MAX_STREAMS
-    print >>sys.stderr, '          The more the better, order from fast/near to slow/far.' 
+    print >>sys.stderr, '          The more the better.'
     print >>sys.stderr
 
 
@@ -109,7 +109,9 @@ for i, mirror_uri in enumerate(supported_mirror_uris):
             sys.exit(1)
 
         local_part = uri[len(mirror_uri):]
-        final_uris = [e + local_part for e in supported_mirror_uris[i:]]
+        final_uris = [e + local_part for e in supported_mirror_uris]
+        import random
+        random.shuffle(final_uris)
         break
 
 
@@ -121,7 +123,7 @@ if len(final_uris) > MAX_STREAMS:
 else:
     drop_slow_links = False
 
-print 'Targetting %d connections, additional %d for backup' \
+print 'Targetting %d random connections, additional %d for backup' \
     % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
 print
 
