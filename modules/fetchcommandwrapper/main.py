@@ -9,10 +9,12 @@ LINK_SPEED_BYTES = 600 * 1024
 
 import sys
 
-# Greeting
-VERSION = (0, 4)
-print 'fetchcommandwrapper', '.'.join(str(e) for e in VERSION)
-print
+
+VERSION = (0, 5)
+
+def print_greeting():
+    print 'fetchcommandwrapper', '.'.join(str(e) for e in VERSION)
+    print
 
 
 # Command line argument parsing
@@ -61,10 +63,12 @@ if continue_flag:
         print >>sys.stderr, 'ERROR: Path "%s" not an existing file' % file_fullpath
         sys.exit(1)
 
-print 'URI = ' + uri
-print 'DISTDIR = ' + distdir
-print 'FILE = ' + file_basename
-print
+
+def print_invocation_details():
+    print 'URI = ' + uri
+    print 'DISTDIR = ' + distdir
+    print 'FILE = ' + file_basename
+    print
 
 
 # Collect mirror URIs
@@ -101,6 +105,7 @@ def print_mirror_details():
 
 # Make list of URIs
 final_uris = [uri, ]
+mirrors_involved = False
 for i, mirror_uri in enumerate(supported_mirror_uris):
     if uri.startswith(mirror_uri):
         if i != 0:
@@ -110,7 +115,7 @@ for i, mirror_uri in enumerate(supported_mirror_uris):
             print >>sys.stderr, 'ERROR: All Gentoo mirrors tried already, exiting.'
             sys.exit(1)
 
-        print_mirror_details()
+        mirrors_involved = True
 
         local_part = uri[len(mirror_uri):]
         final_uris = [e + local_part for e in supported_mirror_uris]
@@ -118,7 +123,11 @@ for i, mirror_uri in enumerate(supported_mirror_uris):
         random.shuffle(final_uris)
         break
 
+print_greeting()
+print_invocation_details()
 
+if mirrors_involved:
+    print_mirror_details()
 
 
 # Compose call arguments
