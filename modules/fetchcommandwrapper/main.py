@@ -141,6 +141,7 @@ if drop_slow_links:
 if continue_flag:
     args.append('--continue')
 args.append('--max-tries=2')
+args.append('--check-certificate=false')
 args.append('--split=%d' % wanted_connections)
 args.append('--max-connection-per-server=1')
 args.append('--uri-selector=inorder')
