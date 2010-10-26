@@ -129,35 +129,36 @@ if mirrors_involved:
     print_mirror_details()
 
 
-# Compose call arguments
-wanted_connections = min(MAX_STREAMS, len(final_uris))
-wanted_minimum_link_speed = LINK_SPEED_BYTES / wanted_connections / 3
-if len(final_uris) > MAX_STREAMS:
-    drop_slow_links = True
-else:
-    drop_slow_links = False
+def invoke_aria2(distdir, file_basename, continue_flag,  final_uris):
+    # Compose call arguments
+    wanted_connections = min(MAX_STREAMS, len(final_uris))
+    wanted_minimum_link_speed = LINK_SPEED_BYTES / wanted_connections / 3
+    if len(final_uris) > MAX_STREAMS:
+        drop_slow_links = True
+    else:
+        drop_slow_links = False
 
-if len(final_uris) > 1:
-    print 'Targetting %d random connections, additional %d for backup' \
-        % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
-    print
+    if len(final_uris) > 1:
+        print 'Targetting %d random connections, additional %d for backup' \
+            % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
+        print
 
+    args = ['/usr/bin/aria2c', '-d', distdir, '-o', file_basename]
+    if drop_slow_links:
+        args.append('--lowest-speed-limit=%s' % wanted_minimum_link_speed)
+    if continue_flag:
+        args.append('--continue')
+    args.append('--max-tries=2')
+    args.append('--check-certificate=false')
+    args.append('--user-agent=Wget/1.12')
+    args.append('--split=%d' % wanted_connections)
+    args.append('--max-connection-per-server=1')
+    args.append('--uri-selector=inorder')
+    args.extend(final_uris)
 
-args = ['/usr/bin/aria2c', '-d', distdir, '-o', file_basename]
-if drop_slow_links:
-    args.append('--lowest-speed-limit=%s' % wanted_minimum_link_speed)
-if continue_flag:
-    args.append('--continue')
-args.append('--max-tries=2')
-args.append('--check-certificate=false')
-args.append('--user-agent=Wget/1.12')
-args.append('--split=%d' % wanted_connections)
-args.append('--max-connection-per-server=1')
-args.append('--uri-selector=inorder')
-args.extend(final_uris)
+    # Invoke aria2
+    print 'Running... #', ' '.join(args)
+    p = subprocess.Popen(args)
+    (out, err) = p.communicate()
 
-
-# Invoke aria2
-print 'Running... #', ' '.join(args)
-p = subprocess.Popen(args)
-(out, err) = p.communicate()
+invoke_aria2(distdir, file_basename, continue_flag, final_uris)
