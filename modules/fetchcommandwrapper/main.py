@@ -138,8 +138,8 @@ def invoke_aria2(distdir, file_basename, continue_flag,  final_uris):
     # Invoke aria2
     print 'Running... #', ' '.join(args)
     import subprocess
-    p = subprocess.Popen(args)
-    (out, err) = p.communicate()
+    ret = subprocess.call(args)
+    sys.exit(ret)
 
 
 def main():
