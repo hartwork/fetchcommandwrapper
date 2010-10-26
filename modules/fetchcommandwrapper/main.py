@@ -10,10 +10,9 @@ LINK_SPEED_BYTES = 600 * 1024
 import sys
 
 
-VERSION = (0, 5)
-
 def print_greeting():
-    print 'fetchcommandwrapper', '.'.join(str(e) for e in VERSION)
+    from fetchcommandwrapper.version import VERSION_STR
+    print 'fetchcommandwrapper', VERSION_STR
     print
 
 

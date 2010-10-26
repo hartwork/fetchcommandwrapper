@@ -1,1 +1,18 @@
-modules/fetchcommandwrapper/main.py
+#!/usr/bin/env python
+# Copyright (C) 2010 Sebastian Pipping <sebastian@pipping.org>
+# Licensed under GPL v3 or later
+
+def add_module_path():
+    import inspect
+    import os
+    import sys
+    self_dir = os.path.dirname(inspect.getfile(sys._getframe(0)))
+    if os.path.exists(os.path.join(self_dir, 'setup.py')):
+        # Allow running as # ./fetchcommandwrapper
+        sys.path.append(os.path.join(self_dir, 'modules'))
+    elif os.path.exists(os.path.join(self_dir, 'version.py')):
+        # Allow running as # python modules/fetchcommandwrapper/main.py
+        sys.path.append(os.path.join(self_dir, '..'))
+
+add_module_path()
+import fetchcommandwrapper.main
