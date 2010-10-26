@@ -29,9 +29,9 @@ def parse_parameters():
         print >>sys.stderr, 'USAGE: %s --continue|--fresh URI DISTDIR FILE' % sys.argv[0]
         sys.exit(1)
 
-    uri=sys.argv[2]
-    distdir=sys.argv[3].rstrip('/')
-    file_basename=sys.argv[4]
+    uri = sys.argv[2]
+    distdir = sys.argv[3].rstrip('/')
+    file_basename = sys.argv[4]
     return uri, distdir, file_basename, continue_flag
 
 
