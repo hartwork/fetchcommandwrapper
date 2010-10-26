@@ -41,8 +41,7 @@ import subprocess
 
 file_fullpath = os.path.join(distdir, file_basename)
 
-if not os.path.exists('/usr/bin/aria2c'):
-    print >>sys.stderr, 'ERROR: net-misc/aria2 not installed, falling back to net-misc/wget'
+def invoke_wget(file_fullpath, continue_flag, uri):
     args = ['/usr/bin/wget', '-O', file_fullpath]
     args.append('--tries=5')
     args.append('--timeout=60')
@@ -55,6 +54,10 @@ if not os.path.exists('/usr/bin/aria2c'):
     print 'Running... #', ' '.join(args)
     ret = subprocess.call(args)
     sys.exit(ret)
+
+if not os.path.exists('/usr/bin/aria2c'):
+    print >>sys.stderr, 'ERROR: net-misc/aria2 not installed, falling back to net-misc/wget'
+    invoke_wget(file_fullpath, continue_flag, uri)
 
 if not os.path.isdir(distdir):
     print >>sys.stderr, 'ERROR: Path "%s" not a directory' % distdir
