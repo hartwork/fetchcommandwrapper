@@ -102,25 +102,28 @@ def print_mirror_details():
         print >>sys.stderr
 
 
-# Make list of URIs
-final_uris = [uri, ]
-mirrors_involved = False
-for i, mirror_uri in enumerate(supported_mirror_uris):
-    if uri.startswith(mirror_uri):
-        if i != 0:
-            # Portage calls us for each mirror URI. Therefore we need to error out
-            # on all but the first one, so we try each mirrror once, at most.
-            # This happens, when a file is not mirrored, e.g. with sunrise ebuilds.
-            print >>sys.stderr, 'ERROR: All Gentoo mirrors tried already, exiting.'
-            sys.exit(1)
+def make_final_uris(uri, supported_mirror_uris):
+    final_uris = [uri, ]
+    mirrors_involved = False
+    for i, mirror_uri in enumerate(supported_mirror_uris):
+        if uri.startswith(mirror_uri):
+            if i != 0:
+                # Portage calls us for each mirror URI. Therefore we need to error out
+                # on all but the first one, so we try each mirrror once, at most.
+                # This happens, when a file is not mirrored, e.g. with sunrise ebuilds.
+                print >>sys.stderr, 'ERROR: All Gentoo mirrors tried already, exiting.'
+                sys.exit(1)
 
-        mirrors_involved = True
+            mirrors_involved = True
 
-        local_part = uri[len(mirror_uri):]
-        final_uris = [e + local_part for e in supported_mirror_uris]
-        import random
-        random.shuffle(final_uris)
-        break
+            local_part = uri[len(mirror_uri):]
+            final_uris = [e + local_part for e in supported_mirror_uris]
+            import random
+            random.shuffle(final_uris)
+            break
+    return final_uris, mirrors_involved
+
+final_uris, mirrors_involved = make_final_uris(uri, supported_mirror_uris)
 
 print_greeting()
 print_invocation_details()
