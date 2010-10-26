@@ -51,7 +51,7 @@ def invoke_wget(file_fullpath, continue_flag, uri):
     sys.exit(ret)
 
 
-def print_invocation_details():
+def print_invocation_details(uri, distdir, file_basename):
     print 'URI = ' + uri
     print 'DISTDIR = ' + distdir
     print 'FILE = ' + file_basename
@@ -74,7 +74,7 @@ def supported(uri):
         or uri.startswith('ftp://')
 
 
-def print_mirror_details():
+def print_mirror_details(supported_mirror_uris):
     print 'Involved mirrors:'
     print '\n'.join('  - ' + e for e in supported_mirror_uris)
     print '  (%d mirrors)' % len(supported_mirror_uris)
@@ -167,10 +167,10 @@ def main():
     final_uris, mirrors_involved = make_final_uris(uri, supported_mirror_uris)
 
     print_greeting()
-    print_invocation_details()
+    print_invocation_details(uri, distdir, file_basename)
 
     if mirrors_involved:
-        print_mirror_details()
+        print_mirror_details(supported_mirror_uris)
 
     invoke_aria2(distdir, file_basename, continue_flag, final_uris)
 
