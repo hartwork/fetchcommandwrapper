@@ -34,12 +34,6 @@ def parse_parameters():
     file_basename=sys.argv[4]
     return uri, distdir, file_basename, continue_flag
 
-uri, distdir, file_basename, continue_flag = parse_parameters()
-
-import os
-import subprocess
-
-file_fullpath = os.path.join(distdir, file_basename)
 
 def invoke_wget(file_fullpath, continue_flag, uri):
     args = ['/usr/bin/wget', '-O', file_fullpath]
@@ -52,21 +46,9 @@ def invoke_wget(file_fullpath, continue_flag, uri):
 
     # Invoke wget
     print 'Running... #', ' '.join(args)
+    import subprocess
     ret = subprocess.call(args)
     sys.exit(ret)
-
-if not os.path.exists('/usr/bin/aria2c'):
-    print >>sys.stderr, 'ERROR: net-misc/aria2 not installed, falling back to net-misc/wget'
-    invoke_wget(file_fullpath, continue_flag, uri)
-
-if not os.path.isdir(distdir):
-    print >>sys.stderr, 'ERROR: Path "%s" not a directory' % distdir
-    sys.exit(1)
-
-if continue_flag:
-    if not os.path.isfile(file_fullpath):
-        print >>sys.stderr, 'ERROR: Path "%s" not an existing file' % file_fullpath
-        sys.exit(1)
 
 
 def print_invocation_details():
@@ -76,24 +58,20 @@ def print_invocation_details():
     print
 
 
-# Collect mirror URIs
-
 def gentoo_mirrors():
+    import subprocess
     p = subprocess.Popen(['/bin/bash', '-c', 'source /etc/make.conf; echo ${GENTOO_MIRRORS}'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     if err:
         print >>sys.stderr, 'ERROR', err
         sys.exit(1)
     return out.rstrip('\n').split(' ')
-    
-mirror_uris = gentoo_mirrors()
+
 
 def supported(uri):
     return uri.startswith('http://') \
         or uri.startswith('https://') \
         or uri.startswith('ftp://')
-
-supported_mirror_uris = [e for e in mirror_uris if supported(e)]
 
 
 def print_mirror_details():
@@ -129,14 +107,6 @@ def make_final_uris(uri, supported_mirror_uris):
             break
     return final_uris, mirrors_involved
 
-final_uris, mirrors_involved = make_final_uris(uri, supported_mirror_uris)
-
-print_greeting()
-print_invocation_details()
-
-if mirrors_involved:
-    print_mirror_details()
-
 
 def invoke_aria2(distdir, file_basename, continue_flag,  final_uris):
     # Compose call arguments
@@ -167,7 +137,43 @@ def invoke_aria2(distdir, file_basename, continue_flag,  final_uris):
 
     # Invoke aria2
     print 'Running... #', ' '.join(args)
+    import subprocess
     p = subprocess.Popen(args)
     (out, err) = p.communicate()
 
-invoke_aria2(distdir, file_basename, continue_flag, final_uris)
+
+def main():
+    uri, distdir, file_basename, continue_flag = parse_parameters()
+
+    import os
+
+    file_fullpath = os.path.join(distdir, file_basename)
+
+    if not os.path.exists('/usr/bin/aria2c'):
+        print >>sys.stderr, 'ERROR: net-misc/aria2 not installed, falling back to net-misc/wget'
+        invoke_wget(file_fullpath, continue_flag, uri)
+
+    if not os.path.isdir(distdir):
+        print >>sys.stderr, 'ERROR: Path "%s" not a directory' % distdir
+        sys.exit(1)
+
+    if continue_flag:
+        if not os.path.isfile(file_fullpath):
+            print >>sys.stderr, 'ERROR: Path "%s" not an existing file' % file_fullpath
+            sys.exit(1)
+
+    supported_mirror_uris = [e for e in gentoo_mirrors() if supported(e)]
+
+    final_uris, mirrors_involved = make_final_uris(uri, supported_mirror_uris)
+
+    print_greeting()
+    print_invocation_details()
+
+    if mirrors_involved:
+        print_mirror_details()
+
+    invoke_aria2(distdir, file_basename, continue_flag, final_uris)
+
+
+if __name__ == '__main__':
+    main()

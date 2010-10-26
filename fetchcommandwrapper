@@ -15,4 +15,6 @@ def add_module_path():
         sys.path.append(os.path.join(self_dir, '..'))
 
 add_module_path()
-import fetchcommandwrapper.main
+from fetchcommandwrapper.main import main
+
+main()
