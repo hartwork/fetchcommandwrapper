@@ -53,8 +53,7 @@ def invoke_wget(file_fullpath, continue_flag, uri):
     # Invoke wget
     print 'Running... #', ' '.join(args)
     import subprocess
-    ret = subprocess.call(args)
-    sys.exit(ret)
+    return subprocess.call(args)
 
 
 def print_invocation_details(uri, distdir, file_basename):
@@ -144,8 +143,7 @@ def invoke_aria2(distdir, file_basename, continue_flag,  final_uris):
     # Invoke aria2
     print 'Running... #', ' '.join(args)
     import subprocess
-    ret = subprocess.call(args)
-    sys.exit(ret)
+    return subprocess.call(args)
 
 
 def main():
@@ -157,7 +155,8 @@ def main():
 
     if not os.path.exists('/usr/bin/aria2c'):
         print >>sys.stderr, 'ERROR: net-misc/aria2 not installed, falling back to net-misc/wget'
-        invoke_wget(file_fullpath, continue_flag, uri)
+        ret = invoke_wget(file_fullpath, continue_flag, uri)
+        sys.exit(ret)
 
     if not os.path.isdir(distdir):
         print >>sys.stderr, 'ERROR: Path "%s" not a directory' % distdir
@@ -178,7 +177,8 @@ def main():
     if mirrors_involved:
         print_mirror_details(supported_mirror_uris)
 
-    invoke_aria2(distdir, file_basename, continue_flag, final_uris)
+    ret = invoke_aria2(distdir, file_basename, continue_flag, final_uris)
+    sys.exit(ret)
 
 
 if __name__ == '__main__':
