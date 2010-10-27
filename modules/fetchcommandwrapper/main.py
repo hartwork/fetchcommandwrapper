@@ -7,6 +7,7 @@ MAX_STREAMS = 5
 
 
 import sys
+import os
 
 
 def print_greeting():
@@ -37,20 +38,23 @@ def parse_parameters():
         parser.print_usage()
         sys.exit(1)
 
-    uri, distdir, file_basename = args
-    distdir = distdir.rstrip('/')
 
-    return uri, distdir, file_basename, opts.continue_flag, opts.link_speed_bytes
+    opts.uri, opts.distdir, opts.file_basename = args
+    opts.distdir = opts.distdir.rstrip('/')
+
+    opts.file_fullpath = os.path.join(opts.distdir, opts.file_basename)
+
+    return opts
 
 
-def invoke_wget(file_fullpath, continue_flag, uri):
-    args = ['/usr/bin/wget', '-O', file_fullpath]
+def invoke_wget(opts):
+    args = ['/usr/bin/wget', '-O', opts.file_fullpath]
     args.append('--tries=5')
     args.append('--timeout=60')
     args.append('--passive-ftp')
-    if continue_flag:
+    if opts.continue_flag:
         args.append('--continue')
-    args.append(uri)
+    args.append(opts.uri)
 
     # Invoke wget
     print 'Running... #', ' '.join(args)
@@ -58,10 +62,10 @@ def invoke_wget(file_fullpath, continue_flag, uri):
     return subprocess.call(args)
 
 
-def print_invocation_details(uri, distdir, file_basename):
-    print 'URI = ' + uri
-    print 'DISTDIR = ' + distdir
-    print 'FILE = ' + file_basename
+def print_invocation_details(opts):
+    print 'URI = ' + opts.uri
+    print 'DISTDIR = ' + opts.distdir
+    print 'FILE = ' + opts.file_basename
     print
 
 
@@ -115,10 +119,10 @@ def make_final_uris(uri, supported_mirror_uris):
     return final_uris, mirrors_involved
 
 
-def invoke_aria2(distdir, file_basename, continue_flag, final_uris, link_speed_bytes):
+def invoke_aria2(opts, final_uris):
     # Compose call arguments
     wanted_connections = min(MAX_STREAMS, len(final_uris))
-    if link_speed_bytes and (len(final_uris) > MAX_STREAMS):
+    if opts.link_speed_bytes and (len(final_uris) > MAX_STREAMS):
         drop_slow_links = True
     else:
         drop_slow_links = False
@@ -128,11 +132,11 @@ def invoke_aria2(distdir, file_basename, continue_flag, final_uris, link_speed_b
             % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
         print
 
-    args = ['/usr/bin/aria2c', '-d', distdir, '-o', file_basename]
+    args = ['/usr/bin/aria2c', '-d', opts.distdir, '-o', opts.file_basename]
     if drop_slow_links:
-        wanted_minimum_link_speed = link_speed_bytes / wanted_connections / 3
+        wanted_minimum_link_speed = opts.link_speed_bytes / wanted_connections / 3
         args.append('--lowest-speed-limit=%s' % wanted_minimum_link_speed)
-    if continue_flag:
+    if opts.continue_flag:
         args.append('--continue')
     args.append('--max-tries=5')
     args.append('--check-certificate=false')
@@ -149,37 +153,33 @@ def invoke_aria2(distdir, file_basename, continue_flag, final_uris, link_speed_b
 
 
 def main():
-    uri, distdir, file_basename, continue_flag, link_speed_bytes = parse_parameters()
-
-    import os
-
-    file_fullpath = os.path.join(distdir, file_basename)
+    opts = parse_parameters()
 
     if not os.path.exists('/usr/bin/aria2c'):
         print >>sys.stderr, 'ERROR: net-misc/aria2 not installed, falling back to net-misc/wget'
-        ret = invoke_wget(file_fullpath, continue_flag, uri)
+        ret = invoke_wget(opts)
         sys.exit(ret)
 
-    if not os.path.isdir(distdir):
-        print >>sys.stderr, 'ERROR: Path "%s" not a directory' % distdir
+    if not os.path.isdir(opts.distdir):
+        print >>sys.stderr, 'ERROR: Path "%s" not a directory' % opts.distdir
         sys.exit(1)
 
-    if continue_flag:
-        if not os.path.isfile(file_fullpath):
-            print >>sys.stderr, 'ERROR: Path "%s" not an existing file' % file_fullpath
+    if opts.continue_flag:
+        if not os.path.isfile(opts.file_fullpath):
+            print >>sys.stderr, 'ERROR: Path "%s" not an existing file' % opts.file_fullpath
             sys.exit(1)
 
     supported_mirror_uris = [e for e in gentoo_mirrors() if supported(e)]
 
-    final_uris, mirrors_involved = make_final_uris(uri, supported_mirror_uris)
+    final_uris, mirrors_involved = make_final_uris(opts.uri, supported_mirror_uris)
 
     print_greeting()
-    print_invocation_details(uri, distdir, file_basename)
+    print_invocation_details(opts)
 
     if mirrors_involved:
         print_mirror_details(supported_mirror_uris)
 
-    ret = invoke_aria2(distdir, file_basename, continue_flag, final_uris, link_speed_bytes)
+    ret = invoke_aria2(opts, final_uris)
     sys.exit(ret)
 
 
