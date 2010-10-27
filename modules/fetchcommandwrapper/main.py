@@ -38,6 +38,12 @@ def parse_parameters():
         parser.print_usage()
         sys.exit(1)
 
+    # Check --link-speed
+    try:
+        opts.link_speed_bytes = int(opts.link_speed_bytes)
+    except ValueError:
+        print >>sys.stderr, 'ERROR: Parameter --link-speed accepts numbers only.'
+        sys.exit(1)
 
     opts.uri, opts.distdir, opts.file_basename = args
     opts.distdir = opts.distdir.rstrip('/')
