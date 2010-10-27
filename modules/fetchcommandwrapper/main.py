@@ -4,7 +4,6 @@
 # Licensed under GPL v3 or later
 
 MAX_STREAMS = 5
-LINK_SPEED_BYTES = 600 * 1024
 
 
 import sys
@@ -29,6 +28,9 @@ def parse_parameters():
     parser.add_option("--fresh",
         action="store_false", dest="continue_flag", default=False,
         help="do not continue previous download (default)")
+    parser.add_option("--link-speed",
+        metavar="SPEED", dest="link_speed_bytes",
+        help="specify link speed (bytes per second). enables dropping of slow connections.")
 
     (opts, args) = parser.parse_args()
     if len(args) != 3:
@@ -38,7 +40,7 @@ def parse_parameters():
     uri, distdir, file_basename = args
     distdir = distdir.rstrip('/')
 
-    return uri, distdir, file_basename, opts.continue_flag
+    return uri, distdir, file_basename, opts.continue_flag, opts.link_speed_bytes
 
 
 def invoke_wget(file_fullpath, continue_flag, uri):
@@ -113,11 +115,10 @@ def make_final_uris(uri, supported_mirror_uris):
     return final_uris, mirrors_involved
 
 
-def invoke_aria2(distdir, file_basename, continue_flag,  final_uris):
+def invoke_aria2(distdir, file_basename, continue_flag, final_uris, link_speed_bytes):
     # Compose call arguments
     wanted_connections = min(MAX_STREAMS, len(final_uris))
-    wanted_minimum_link_speed = LINK_SPEED_BYTES / wanted_connections / 3
-    if len(final_uris) > MAX_STREAMS:
+    if link_speed_bytes and (len(final_uris) > MAX_STREAMS):
         drop_slow_links = True
     else:
         drop_slow_links = False
@@ -129,6 +130,7 @@ def invoke_aria2(distdir, file_basename, continue_flag,  final_uris):
 
     args = ['/usr/bin/aria2c', '-d', distdir, '-o', file_basename]
     if drop_slow_links:
+        wanted_minimum_link_speed = link_speed_bytes / wanted_connections / 3
         args.append('--lowest-speed-limit=%s' % wanted_minimum_link_speed)
     if continue_flag:
         args.append('--continue')
@@ -147,7 +149,7 @@ def invoke_aria2(distdir, file_basename, continue_flag,  final_uris):
 
 
 def main():
-    uri, distdir, file_basename, continue_flag = parse_parameters()
+    uri, distdir, file_basename, continue_flag, link_speed_bytes = parse_parameters()
 
     import os
 
@@ -177,7 +179,7 @@ def main():
     if mirrors_involved:
         print_mirror_details(supported_mirror_uris)
 
-    ret = invoke_aria2(distdir, file_basename, continue_flag, final_uris)
+    ret = invoke_aria2(distdir, file_basename, continue_flag, final_uris, link_speed_bytes)
     sys.exit(ret)
 
 
