@@ -1,3 +1,3 @@
 Install running...
 
-# python /setup.py install
+# python setup.py install
