@@ -8,11 +8,8 @@ def add_module_path():
     import sys
     self_dir = os.path.dirname(inspect.getfile(sys._getframe(0)))
     if os.path.exists(os.path.join(self_dir, 'setup.py')):
-        # Allow running as # ./fetchcommandwrapper
+        # Allow running from source dir
         sys.path.append(os.path.join(self_dir, 'modules'))
-    elif os.path.exists(os.path.join(self_dir, 'version.py')):
-        # Allow running as # python modules/fetchcommandwrapper/main.py
-        sys.path.append(os.path.join(self_dir, '..'))
 
 add_module_path()
 from fetchcommandwrapper.main import main
