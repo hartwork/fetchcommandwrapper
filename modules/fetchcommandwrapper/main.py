@@ -40,11 +40,12 @@ def parse_parameters():
         sys.exit(1)
 
     # Check --link-speed
-    try:
-        opts.link_speed_bytes = int(opts.link_speed_bytes)
-    except ValueError:
-        print >>sys.stderr, 'ERROR: Parameter --link-speed accepts numbers only.'
-        sys.exit(1)
+    if opts.link_speed_bytes:
+        try:
+            opts.link_speed_bytes = int(opts.link_speed_bytes)
+        except ValueError:
+            print >>sys.stderr, 'ERROR: Parameter --link-speed accepts numbers only.'
+            sys.exit(1)
 
     opts.uri, opts.distdir, opts.file_basename = args
     opts.distdir = opts.distdir.rstrip('/')
