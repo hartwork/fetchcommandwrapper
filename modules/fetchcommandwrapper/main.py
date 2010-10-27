@@ -134,7 +134,7 @@ def invoke_aria2(distdir, file_basename, continue_flag, final_uris, link_speed_b
         args.append('--lowest-speed-limit=%s' % wanted_minimum_link_speed)
     if continue_flag:
         args.append('--continue')
-    args.append('--max-tries=2')
+    args.append('--max-tries=5')
     args.append('--check-certificate=false')
     args.append('--user-agent=Wget/1.12')
     args.append('--split=%d' % wanted_connections)
