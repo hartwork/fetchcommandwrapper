@@ -17,22 +17,28 @@ def print_greeting():
 
 
 def parse_parameters():
-    if len(sys.argv) != 5:
-        print >>sys.stderr, 'USAGE: %s --continue|--fresh URI DISTDIR FILE' % sys.argv[0]
+    USAGE = "\n  %prog [OPTIONS] URI DISTDIR FILE"""
+
+    from optparse import OptionParser
+    from fetchcommandwrapper.version import VERSION_STR
+    parser = OptionParser(usage=USAGE, version=VERSION_STR)
+
+    parser.add_option("-c", "--continue",
+        action="store_true", dest="continue_flag", default=False,
+        help="continue previous download")
+    parser.add_option("--fresh",
+        action="store_false", dest="continue_flag", default=False,
+        help="do not continue previous download (default)")
+
+    (opts, args) = parser.parse_args()
+    if len(args) != 3:
+        parser.print_usage()
         sys.exit(1)
 
-    if sys.argv[1] == '--continue':
-        continue_flag = True
-    elif sys.argv[1] == '--fresh':
-        continue_flag = False
-    else:
-        print >>sys.stderr, 'USAGE: %s --continue|--fresh URI DISTDIR FILE' % sys.argv[0]
-        sys.exit(1)
+    uri, distdir, file_basename = args
+    distdir = distdir.rstrip('/')
 
-    uri = sys.argv[2]
-    distdir = sys.argv[3].rstrip('/')
-    file_basename = sys.argv[4]
-    return uri, distdir, file_basename, continue_flag
+    return uri, distdir, file_basename, opts.continue_flag
 
 
 def invoke_wget(file_fullpath, continue_flag, uri):
