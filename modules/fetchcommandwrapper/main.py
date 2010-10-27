@@ -4,6 +4,7 @@
 # Licensed under GPL v3 or later
 
 MAX_STREAMS = 5
+ARIA2_COMMAND = '/usr/bin/aria2c'
 
 
 import sys
@@ -138,7 +139,7 @@ def invoke_aria2(opts, final_uris):
             % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
         print
 
-    args = ['/usr/bin/aria2c', '-d', opts.distdir, '-o', opts.file_basename]
+    args = [ARIA2_COMMAND, '-d', opts.distdir, '-o', opts.file_basename]
     if drop_slow_links:
         wanted_minimum_link_speed = opts.link_speed_bytes / wanted_connections / 3
         args.append('--lowest-speed-limit=%s' % wanted_minimum_link_speed)
@@ -161,7 +162,7 @@ def invoke_aria2(opts, final_uris):
 def main():
     opts = parse_parameters()
 
-    if not os.path.exists('/usr/bin/aria2c'):
+    if not os.path.exists(ARIA2_COMMAND):
         print >>sys.stderr, 'ERROR: net-misc/aria2 not installed, falling back to net-misc/wget'
         ret = invoke_wget(opts)
         sys.exit(ret)
