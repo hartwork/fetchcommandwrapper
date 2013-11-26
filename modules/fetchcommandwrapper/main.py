@@ -79,7 +79,7 @@ def print_invocation_details(opts):
 
 def gentoo_mirrors():
     import subprocess
-    p = subprocess.Popen(['/bin/bash', '-c', 'source /etc/make.conf; echo ${GENTOO_MIRRORS}'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(['/usr/bin/portageq', 'gentoo_mirrors'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     if err:
         print >>sys.stderr, 'ERROR', err
