@@ -13,7 +13,7 @@ setup(
     description='Wrapper around Aria2 for portage\'s FETCHCOMMAND variable',
     license='GPL v3 or later',
     version=VERSION_STR,
-    url='http://git.goodpoint.de/?p=fetchcommandwrapper.git;a=summary',
+    url='https://github.com/gentoo/fetchcommandwrapper',
     author='Sebastian Pipping',
     author_email='sping@gentoo.org',
     package_dir={'':'modules', },
