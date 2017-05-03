@@ -87,9 +87,9 @@ def gentoo_mirrors():
     p = subprocess.Popen(['/usr/bin/portageq', 'gentoo_mirrors'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     if err:
-        print('ERROR %s' % err, file=sys.stderr)
+        print('ERROR %s' % err.decode('UTF-8'), file=sys.stderr)
         sys.exit(1)
-    return out.rstrip('\n').split(' ')
+    return out.decode('UTF-8').rstrip('\n').split(' ')
 
 
 def supported(uri):
