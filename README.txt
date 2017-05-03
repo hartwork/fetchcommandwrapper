@@ -1,3 +1,7 @@
 Install running...
 
-# python setup.py install
+# sudo emerge -av app-portage/fetchcommandwrapper
+
+  or
+
+# python setup.py install --user
