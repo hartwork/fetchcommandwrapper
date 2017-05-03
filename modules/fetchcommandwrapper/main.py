@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-# Copyright (C) 2010 Sebastian Pipping <sebastian@pipping.org>
+# Copyright (C) 2010-2017 Sebastian Pipping <sebastian@pipping.org>
 # Copyright (C) 2010 Andrew Karpow <andy@mailbox.tu-berlin.de>
 # Licensed under GPL v3 or later
+
+from __future__ import print_function
 
 MAX_STREAMS = 5
 ARIA2_COMMAND = '/usr/bin/aria2c'
@@ -10,11 +12,13 @@ ARIA2_COMMAND = '/usr/bin/aria2c'
 import sys
 import os
 
+from textwrap import dedent
+
 
 def print_greeting():
     from fetchcommandwrapper.version import VERSION_STR
-    print 'fetchcommandwrapper', VERSION_STR
-    print
+    print('fetchcommandwrapper %s' % VERSION_STR)
+    print()
 
 
 def parse_parameters():
@@ -44,7 +48,8 @@ def parse_parameters():
         try:
             opts.link_speed_bytes = int(opts.link_speed_bytes)
         except ValueError:
-            print >>sys.stderr, 'ERROR: Parameter --link-speed accepts numbers only.'
+            print('ERROR: Parameter --link-speed accepts numbers only.',
+                    file=sys.stderr)
             sys.exit(1)
 
     opts.uri, opts.distdir, opts.file_basename = args
@@ -65,16 +70,16 @@ def invoke_wget(opts):
     args.append(opts.uri)
 
     # Invoke wget
-    print 'Running... #', ' '.join(args)
+    print('Running... # %s' % ' '.join(args))
     import subprocess
     return subprocess.call(args)
 
 
 def print_invocation_details(opts):
-    print 'URI = ' + opts.uri
-    print 'DISTDIR = ' + opts.distdir
-    print 'FILE = ' + opts.file_basename
-    print
+    print('URI = %s' % opts.uri)
+    print('DISTDIR = %s' % opts.distdir)
+    print('FILE = %s' % opts.file_basename)
+    print()
 
 
 def gentoo_mirrors():
@@ -82,7 +87,7 @@ def gentoo_mirrors():
     p = subprocess.Popen(['/usr/bin/portageq', 'gentoo_mirrors'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     if err:
-        print >>sys.stderr, 'ERROR', err
+        print('ERROR %s' % err, file=sys.stderr)
         sys.exit(1)
     return out.rstrip('\n').split(' ')
 
@@ -94,15 +99,16 @@ def supported(uri):
 
 
 def print_mirror_details(supported_mirror_uris):
-    print 'Involved mirrors:'
-    print '\n'.join('  - ' + e for e in supported_mirror_uris)
-    print '  (%d mirrors)' % len(supported_mirror_uris)
-    print
+    print('Involved mirrors:')
+    print('\n'.join('  - ' + e for e in supported_mirror_uris))
+    print('  (%d mirrors)' % len(supported_mirror_uris))
+    print()
 
     if len(supported_mirror_uris) < MAX_STREAMS:
-        print >>sys.stderr, 'WARNING:  Please specify at least %d URIs in GENTOO_MIRRORS.' % MAX_STREAMS
-        print >>sys.stderr, '          The more the better.'
-        print >>sys.stderr
+        print(dedent("""\
+            WARNING:  Please specify at least %d URIs in GENTOO_MIRRORS.
+                      The more the better.'
+        """ % MAX_STREAMS), file=sys.stderr)
 
 
 def make_final_uris(uri, supported_mirror_uris):
@@ -114,7 +120,8 @@ def make_final_uris(uri, supported_mirror_uris):
                 # Portage calls us for each mirror URI. Therefore we need to error out
                 # on all but the first one, so we try each mirrror once, at most.
                 # This happens, when a file is not mirrored, e.g. with sunrise ebuilds.
-                print >>sys.stderr, 'ERROR: All Gentoo mirrors tried already, exiting.'
+                print('ERROR: All Gentoo mirrors tried already, exiting.',
+                        file=sys.stderr)
                 sys.exit(1)
 
             mirrors_involved = True
@@ -136,9 +143,9 @@ def invoke_aria2(opts, final_uris):
         drop_slow_links = False
 
     if len(final_uris) > 1:
-        print 'Targetting %d random connections, additional %d for backup' \
-            % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
-        print
+        print('Targetting %d random connections, additional %d for backup' \
+            % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS)))
+        print()
 
     args = [ARIA2_COMMAND, '-d', opts.distdir, '-o', opts.file_basename]
     if drop_slow_links:
@@ -154,7 +161,7 @@ def invoke_aria2(opts, final_uris):
     args.extend(final_uris)
 
     # Invoke aria2
-    print 'Running... #', ' '.join(args)
+    print('Running... # %s' % ' '.join(args))
     import subprocess
     return subprocess.call(args)
 
@@ -163,17 +170,21 @@ def main():
     opts = parse_parameters()
 
     if not os.path.exists(ARIA2_COMMAND):
-        print >>sys.stderr, 'ERROR: net-misc/aria2 not installed, falling back to net-misc/wget'
+        print('ERROR: net-misc/aria2 not installed'
+                ', falling back to net-misc/wget',
+                file=sys.stderr)
         ret = invoke_wget(opts)
         sys.exit(ret)
 
     if not os.path.isdir(opts.distdir):
-        print >>sys.stderr, 'ERROR: Path "%s" not a directory' % opts.distdir
+        print('ERROR: Path "%s" not a directory' % opts.distdir,
+                file=sys.stderr)
         sys.exit(1)
 
     if opts.continue_flag:
         if not os.path.isfile(opts.file_fullpath):
-            print >>sys.stderr, 'ERROR: Path "%s" not an existing file' % opts.file_fullpath
+            print('ERROR: Path "%s" not an existing file'
+                    % opts.file_fullpath, file=sys.stderr)
             sys.exit(1)
 
     supported_mirror_uris = [e for e in gentoo_mirrors() if supported(e)]
