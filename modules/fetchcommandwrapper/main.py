@@ -155,7 +155,7 @@ def invoke_aria2(opts, final_uris):
     if opts.continue_flag:
         args.append('--continue')
     args.append('--max-tries=5')
-    args.append('--user-agent=Wget/1.12')
+    args.append('--user-agent=Wget/1.19.1')
     args.append('--split=%d' % wanted_connections)
     args.append('--max-connection-per-server=1')
     args.append('--uri-selector=inorder')
