@@ -12,6 +12,7 @@ ARIA2_COMMAND = '/usr/bin/aria2c'
 import sys
 import os
 
+from signal import SIGINT
 from textwrap import dedent
 
 
@@ -166,7 +167,7 @@ def invoke_aria2(opts, final_uris):
     return subprocess.call(args)
 
 
-def main():
+def _inner_main():
     opts = parse_parameters()
 
     if not os.path.exists(ARIA2_COMMAND):
@@ -199,6 +200,13 @@ def main():
 
     ret = invoke_aria2(opts, final_uris)
     sys.exit(ret)
+
+
+def main():
+    try:
+        _inner_main()
+    except KeyboardInterrupt:
+        sys.exit(128 + SIGINT)
 
 
 if __name__ == '__main__':
