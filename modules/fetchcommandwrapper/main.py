@@ -23,7 +23,7 @@ def print_greeting():
 
 
 def parse_parameters():
-    USAGE = "\n  %prog [OPTIONS] URI DISTDIR FILE"""
+    USAGE = "\n  %prog [OPTIONS] URI DISTDIR FILE [-- [ARG ..]]"""
 
     from optparse import OptionParser
     from fetchcommandwrapper.version import VERSION_STR
@@ -40,7 +40,7 @@ def parse_parameters():
         help="specify link speed (bytes per second). enables dropping of slow connections.")
 
     (opts, args) = parser.parse_args()
-    if len(args) != 3:
+    if len(args) < 3:
         parser.print_usage()
         sys.exit(1)
 
@@ -53,7 +53,8 @@ def parse_parameters():
                     file=sys.stderr)
             sys.exit(1)
 
-    opts.uri, opts.distdir, opts.file_basename = args
+    opts.uri, opts.distdir, opts.file_basename = args[:3]
+    opts.argv_extra = args[3:]
     opts.distdir = opts.distdir.rstrip('/')
 
     opts.file_fullpath = os.path.join(opts.distdir, opts.file_basename)
@@ -68,6 +69,7 @@ def invoke_wget(opts):
     args.append('--passive-ftp')
     if opts.continue_flag:
         args.append('--continue')
+    args.extend(opts.argv_extra)
     args.append(opts.uri)
 
     # Invoke wget
@@ -160,6 +162,7 @@ def invoke_aria2(opts, final_uris):
     args.append('--split=%d' % wanted_connections)
     args.append('--max-connection-per-server=1')
     args.append('--uri-selector=inorder')
+    args.extend(opts.argv_extra)
     args.extend(final_uris)
 
     # Invoke aria2
