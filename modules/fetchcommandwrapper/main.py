@@ -156,6 +156,7 @@ def invoke_aria2(opts, final_uris):
         args.append('--lowest-speed-limit=%s' % wanted_minimum_link_speed)
     if opts.continue_flag:
         args.append('--continue')
+    args.append('--allow-overwrite=true')
     args.append('--max-tries=5')
     args.append('--max-file-not-found=2')
     args.append('--user-agent=Wget/1.19.1')
