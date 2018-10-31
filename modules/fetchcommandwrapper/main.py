@@ -152,7 +152,7 @@ def invoke_aria2(opts, final_uris):
 
     args = [ARIA2_COMMAND, '-d', opts.distdir, '-o', opts.file_basename]
     if drop_slow_links:
-        wanted_minimum_link_speed = opts.link_speed_bytes / wanted_connections / 3
+        wanted_minimum_link_speed = int(opts.link_speed_bytes / wanted_connections / 3)
         args.append('--lowest-speed-limit=%s' % wanted_minimum_link_speed)
     if opts.continue_flag:
         args.append('--continue')
