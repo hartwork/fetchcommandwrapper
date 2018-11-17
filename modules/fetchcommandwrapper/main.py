@@ -163,6 +163,7 @@ def invoke_aria2(opts, final_uris):
     args.append('--split=%d' % wanted_connections)
     args.append('--max-connection-per-server=1')
     args.append('--uri-selector=inorder')
+    args.append('--follow-metalink=mem')  # e.g. GNOME servers with mirrorbrain
     args.extend(opts.argv_extra)
     args.extend(final_uris)
 
