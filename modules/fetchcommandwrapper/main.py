@@ -23,38 +23,30 @@ def print_greeting():
 
 
 def parse_parameters():
-    USAGE = "\n  %prog [OPTIONS] URI DISTDIR FILE [-- [ARG ..]]"""
+    USAGE = "\n  %(prog)s [OPTIONS] URI DISTDIR FILE [-- [ARG ..]]"""
 
-    from optparse import OptionParser
+    import argparse
     from fetchcommandwrapper.version import VERSION_STR
-    parser = OptionParser(usage=USAGE, version=VERSION_STR)
+    parser = argparse.ArgumentParser(usage=USAGE)
+    parser.add_argument("--version",
+            action="version", version=VERSION_STR)
 
-    parser.add_option("-c", "--continue",
-        action="store_true", dest="continue_flag", default=False,
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("-c", "--continue",
+        action="store_true", dest="continue_flag",
         help="continue previous download")
-    parser.add_option("--fresh",
+    group.add_argument("--fresh",
         action="store_false", dest="continue_flag", default=False,
         help="do not continue previous download (default)")
-    parser.add_option("--link-speed",
+    parser.add_argument("--link-speed", type=int,
         metavar="SPEED", dest="link_speed_bytes",
         help="specify link speed (bytes per second). enables dropping of slow connections.")
+    parser.add_argument("uri", metavar="URI", help=argparse.SUPPRESS)
+    parser.add_argument("distdir", metavar="DISTDIR", help=argparse.SUPPRESS)
+    parser.add_argument("file_basename", metavar="FILE", help=argparse.SUPPRESS)
 
-    (opts, args) = parser.parse_args()
-    if len(args) < 3:
-        parser.print_usage()
-        sys.exit(1)
+    opts, opts.argv_extra = parser.parse_known_args()
 
-    # Check --link-speed
-    if opts.link_speed_bytes:
-        try:
-            opts.link_speed_bytes = int(opts.link_speed_bytes)
-        except ValueError:
-            print('ERROR: Parameter --link-speed accepts numbers only.',
-                    file=sys.stderr)
-            sys.exit(1)
-
-    opts.uri, opts.distdir, opts.file_basename = args[:3]
-    opts.argv_extra = args[3:]
     opts.distdir = opts.distdir.rstrip('/')
 
     opts.file_fullpath = os.path.join(opts.distdir, opts.file_basename)
