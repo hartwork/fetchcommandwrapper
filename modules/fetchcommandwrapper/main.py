@@ -23,7 +23,7 @@ def print_greeting():
 
 
 def parse_parameters():
-    USAGE = "\n  %(prog)s [OPTIONS] URI DISTDIR FILE [-- [ARG ..]]"""
+    USAGE = "\n  %(prog)s [OPTIONS] URI DISTDIR FILE [-- [ARG ..]]"
 
     import argparse
     from fetchcommandwrapper.version import VERSION_STR
