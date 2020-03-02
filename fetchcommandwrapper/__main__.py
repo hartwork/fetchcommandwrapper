@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (C) 2010-2017 Sebastian Pipping <sebastian@pipping.org>
 # Copyright (C) 2010 Andrew Karpow <andy@mailbox.tu-berlin.de>
 # Licensed under GPL v3 or later

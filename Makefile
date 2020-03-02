@@ -1,6 +1,6 @@
 dist:
 	rm -f MANIFEST
-	python setup.py sdist
+	python3 setup.py sdist
 
 clean:
 	find -type f -name '*.pyc' -delete

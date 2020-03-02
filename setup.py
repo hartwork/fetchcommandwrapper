@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (C) 2010 Sebastian Pipping <sebastian@pipping.org>
 # Licensed under GPL v3 or later
 
@@ -18,6 +18,7 @@ setup(
     url='https://github.com/hartwork/fetchcommandwrapper',
     author='Sebastian Pipping',
     author_email='sping@gentoo.org',
+    python_requires='>=3',
     setup_requires=[
         'setuptools>=38.6.0',  # for long_description_content_type
     ],
