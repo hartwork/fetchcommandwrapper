@@ -2,7 +2,7 @@
 # Copyright (C) 2010 Sebastian Pipping <sebastian@pipping.org>
 # Licensed under GPL v3 or later
 
-from setuptools import setup
+from setuptools import find_packages, setup
 
 import sys
 sys.path.insert(0, 'modules')
@@ -21,8 +21,7 @@ setup(
     setup_requires=[
         'setuptools>=38.6.0',  # for long_description_content_type
     ],
-    package_dir={'':'modules', },
-    packages=['fetchcommandwrapper', ],
+    packages=find_packages(),
     entry_points={
         'console_scripts': [
             'fetchcommandwrapper = fetchcommandwrapper.__main__:main',
