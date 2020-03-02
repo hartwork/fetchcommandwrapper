@@ -3,8 +3,6 @@
 # Copyright (C) 2010 Andrew Karpow <andy@mailbox.tu-berlin.de>
 # Licensed under GPL v3 or later
 
-from __future__ import print_function
-
 MAX_STREAMS = 5
 ARIA2_COMMAND = '/usr/bin/aria2c'
 
