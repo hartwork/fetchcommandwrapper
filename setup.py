@@ -23,7 +23,11 @@ setup(
     ],
     package_dir={'':'modules', },
     packages=['fetchcommandwrapper', ],
-    scripts=['fetchcommandwrapper', ],
+    entry_points={
+        'console_scripts': [
+            'fetchcommandwrapper = fetchcommandwrapper.__main__:main',
+        ],
+    },
     data_files=[
         ('share/fetchcommandwrapper', [
             'make.conf',
