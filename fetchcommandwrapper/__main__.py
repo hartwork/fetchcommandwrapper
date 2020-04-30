@@ -107,23 +107,28 @@ def print_mirror_details(supported_mirror_uris):
 def make_final_uris(uri, supported_mirror_uris):
     final_uris = [uri, ]
     mirrors_involved = False
-    for i, mirror_uri in enumerate(supported_mirror_uris):
-        if uri.startswith(mirror_uri):
-            if i != 0:
-                # Portage calls us for each mirror URI. Therefore we need to error out
-                # on all but the first one, so we try each mirrror once, at most.
-                # This happens, when a file is not mirrored, e.g. with sunrise ebuilds.
-                print('ERROR: All Gentoo mirrors tried already, exiting.',
-                        file=sys.stderr)
-                sys.exit(1)
 
-            mirrors_involved = True
+    if not uri.endswith('/distfiles/layout.conf'):
+        for i, mirror_uri in enumerate(supported_mirror_uris):
+            if uri.startswith(mirror_uri):
+                if i != 0:
+                    # Portage calls us for each mirror URI. Therefore we need
+                    # to error out on all but the first one, so we try each
+                    # mirrror once, at most.
+                    # This happens, when a file is not mirrored, e.g. with
+                    # sunrise ebuilds.
+                    print('ERROR: All Gentoo mirrors tried already, exiting.',
+                            file=sys.stderr)
+                    sys.exit(1)
 
-            local_part = uri[len(mirror_uri):]
-            final_uris = [e + local_part for e in supported_mirror_uris]
-            import random
-            random.shuffle(final_uris)
-            break
+                mirrors_involved = True
+
+                local_part = uri[len(mirror_uri):]
+                final_uris = [e + local_part for e in supported_mirror_uris]
+                import random
+                random.shuffle(final_uris)
+                break
+
     return final_uris, mirrors_involved
 
 
