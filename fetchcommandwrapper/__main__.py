@@ -25,7 +25,7 @@ def parse_parameters():
 
     import argparse
     from fetchcommandwrapper.version import VERSION_STR
-    parser = argparse.ArgumentParser(usage=USAGE)
+    parser = argparse.ArgumentParser(prog='fetchcommandwrapper', usage=USAGE)
     parser.add_argument("--version",
             action="version", version=VERSION_STR)
 
