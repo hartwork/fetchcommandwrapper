@@ -37,7 +37,7 @@ def parse_parameters():
         action="store_false", dest="continue_flag", default=False,
         help="do not continue previous download (default)")
     parser.add_argument("--link-speed", type=int,
-        metavar="SPEED", dest="link_speed_bytes",
+        metavar="BYTES", dest="link_speed_bytes",
         help="specify link speed (bytes per second). enables dropping of slow connections.")
     parser.add_argument("uri", metavar="URI", help=argparse.SUPPRESS)
     parser.add_argument("distdir", metavar="DISTDIR", help=argparse.SUPPRESS)
