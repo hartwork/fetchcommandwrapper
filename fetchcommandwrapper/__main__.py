@@ -163,7 +163,7 @@ def invoke_aria2(opts, final_uris):
 
     if len(final_uris) > 1:
         print(
-            "Targetting %d random connections, additional %d for backup"
+            "Targeting %d random connections, additional %d for backup"
             % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
         )
         print()
