@@ -2,9 +2,10 @@
 # Copyright (C) 2010 Sebastian Pipping <sebastian@pipping.org>
 # Licensed under GPL v3 or later
 
+import sys
+
 from setuptools import find_packages, setup
 
-import sys
 sys.path.insert(0, 'modules')
 from fetchcommandwrapper.version import VERSION_STR
 

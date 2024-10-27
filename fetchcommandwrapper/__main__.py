@@ -3,19 +3,17 @@
 # Copyright (C) 2010 Andrew Karpow <andy@mailbox.tu-berlin.de>
 # Licensed under GPL v3 or later
 
+import os
+import sys
+from signal import SIGINT
+from textwrap import dedent
+
 MAX_STREAMS = 5
 ARIA2_COMMAND = '/usr/bin/aria2c'
 
 
-import sys
-import os
-
-from signal import SIGINT
-from textwrap import dedent
-
-
 def print_greeting():
-    from fetchcommandwrapper.version import VERSION_STR
+    from fetchcommandwrapper.version import VERSION_STR  # noqa: I001
     print('fetchcommandwrapper %s' % VERSION_STR)
     print()
 
@@ -23,8 +21,8 @@ def print_greeting():
 def parse_parameters():
     USAGE = "\n  %(prog)s [OPTIONS] URI DISTDIR FILE [-- [ARG ..]]"
 
-    import argparse
-    from fetchcommandwrapper.version import VERSION_STR
+    import argparse  # noqa: I001
+    from fetchcommandwrapper.version import VERSION_STR  # noqa: I001
     parser = argparse.ArgumentParser(prog='fetchcommandwrapper', usage=USAGE)
     parser.add_argument("--version",
             action="version", version=VERSION_STR)
@@ -77,7 +75,8 @@ def print_invocation_details(opts):
 
 def gentoo_mirrors():
     import subprocess
-    p = subprocess.Popen(['/usr/bin/portageq', 'gentoo_mirrors'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p = subprocess.Popen(['/usr/bin/portageq', 'gentoo_mirrors'],
+                         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     (out, err) = p.communicate()
     if err:
         print('ERROR %s' % err.decode('UTF-8'), file=sys.stderr)
