@@ -1,0 +1,23 @@
+# Copyright (c) 2024 Sebastian Pipping <sebastian@pipping.org>
+# Licensed under GPL v3 or later
+
+name: Enforce codespell-clean spelling
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 2 * * 5'  # Every Friday at 2am
+  workflow_dispatch:
+
+# Drop permissions to minimum, for security
+permissions:
+  contents: read
+
+jobs:
+  codespell:
+    name: Enforce codespell-clean spelling
+    runs-on: ubuntu-22.04
+    steps:
+    - uses: actions/checkout@b4ffde65f46336ab88eb53be808477a3936bae11  # v4.1.1
+    - uses: codespell-project/actions-codespell@94259cd8be02ad2903ba34a22d9c13de21a74461  # v2.0
