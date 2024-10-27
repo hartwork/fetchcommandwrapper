@@ -1,0 +1,64 @@
+# Copyright (c) 2024 Sebastian Pipping <sebastian@pipping.org>
+# Licensed under GPL v3 or later
+
+name: Run the test suite
+
+# Drop permissions to minimum, for security
+permissions:
+  contents: read
+
+on:
+  pull_request:
+  push:
+  schedule:
+    - cron: '0 3 * * 5'  # Every Friday at 3am
+  workflow_dispatch:
+
+jobs:
+  run-tests:
+    name: Run the test suite
+    strategy:
+      matrix:
+        python-version: [3.9, 3.13]  # no particular need for in-between versions
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@8e5e7e5ab8b370d6c329ec480221332ada57f0ab  # v3.5.2
+    - uses: actions/setup-python@d27e3f3d7c64b4bbf8e4abfb9b63b83e846e0435  # v4.5.0
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Install dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install --no-install-recommends --yes -V \
+            aria2
+
+    - name: Install fetchcommandwrapper
+      run: |
+        set -x -u
+        pip3 install -e .
+        echo "${HOME}/.local/bin" >> "${GITHUB_PATH}"
+
+    - name: Install dummy portageq
+      run: |
+        sudo cp -v .github/workflows/dummy-portageq.sh /usr/bin/portageq
+        sudo chmod a+x /usr/bin/portageq
+
+    - name: Run smoke tests
+      run: |
+        set -x
+
+        python3 --version
+        head -n1 "$(type -P fetchcommandwrapper)"
+
+        fetchcommandwrapper --help
+        fetchcommandwrapper --version
+
+        args=(
+          --link-speed 100000
+          http://ftp.spline.inf.fu-berlin.de/mirrors/gentoo/distfiles/4f/isomaster-1.3.17.tar.bz2
+          ./
+          isomaster-1.3.17.tar.bz2
+        )
+
+        fetchcommandwrapper --fresh "${args[@]}"
+        fetchcommandwrapper --continue "${args[@]}"
