@@ -196,9 +196,7 @@ def _inner_main():
     opts = parse_parameters()
 
     if not os.path.exists(ARIA2_COMMAND):
-        print(
-            "ERROR: net-misc/aria2 not installed" ", falling back to net-misc/wget", file=sys.stderr
-        )
+        print("ERROR: net-misc/aria2 not installed, falling back to net-misc/wget", file=sys.stderr)
         ret = invoke_wget(opts)
         sys.exit(ret)
 
