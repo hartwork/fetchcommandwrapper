@@ -179,6 +179,8 @@ def invoke_aria2(opts, final_uris):
     if not VERBOSE:
         args.append("--console-log-level=warn")
         args.append("--summary-interval=0")
+    if os.getenv("NO_COLOR"):
+        args.append("--enable-color=false")
     args.append("--allow-overwrite=true")
     args.append("--max-tries=5")
     args.append("--max-file-not-found=2")
