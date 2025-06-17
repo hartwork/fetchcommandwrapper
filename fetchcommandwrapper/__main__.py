@@ -22,11 +22,21 @@ def print_greeting():
 
 def parse_parameters():
     USAGE = "\n  %(prog)s [OPTIONS] URI DISTDIR FILE [-- [ARG ..]]"
+    EPILOG = dedent("""\
+        environment variables:
+          NO_COLOR              Disable use of color (default: auto-detect)
+          PORTAGE_VERBOSE       Enable verbose mode on "1" (default: low verbosity)
+    """)
 
     import argparse  # noqa: I001
     from fetchcommandwrapper.version import VERSION_STR  # noqa: I001
 
-    parser = argparse.ArgumentParser(prog="fetchcommandwrapper", usage=USAGE)
+    parser = argparse.ArgumentParser(
+        prog="fetchcommandwrapper",
+        usage=USAGE,
+        epilog=EPILOG,
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+    )
     parser.add_argument("--version", action="version", version=VERSION_STR)
 
     group = parser.add_mutually_exclusive_group()
