@@ -24,8 +24,8 @@ def parse_parameters():
     USAGE = "\n  %(prog)s [OPTIONS] URI DISTDIR FILE [-- [ARG ..]]"
     EPILOG = dedent("""\
         environment variables:
-          NO_COLOR              Disable use of color (default: auto-detect)
-          PORTAGE_VERBOSE       Enable verbose mode on "1" (default: low verbosity)
+          NO_COLOR            Disable use of color (default: auto-detect)
+          PORTAGE_VERBOSE     Enable verbose mode on "1" (default: low verbosity)
     """)
 
     import argparse  # noqa: I001
