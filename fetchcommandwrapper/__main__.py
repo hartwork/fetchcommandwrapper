@@ -10,6 +10,7 @@ from textwrap import dedent
 
 MAX_STREAMS = 5
 ARIA2_COMMAND = "/usr/bin/aria2c"
+VERBOSE = os.getenv("PORTAGE_VERBOSE") == "1"
 
 
 def print_greeting():
@@ -105,10 +106,11 @@ def supported(uri):
 
 
 def print_mirror_details(supported_mirror_uris):
-    print("Involved mirrors:")
-    print("\n".join("  - " + e for e in supported_mirror_uris))
-    print("  (%d mirrors)" % len(supported_mirror_uris))
-    print()
+    if VERBOSE:
+        print("Involved mirrors:")
+        print("\n".join("  - " + e for e in supported_mirror_uris))
+        print("  (%d mirrors)" % len(supported_mirror_uris))
+        print()
 
     if len(supported_mirror_uris) < MAX_STREAMS:
         print(
@@ -161,7 +163,7 @@ def invoke_aria2(opts, final_uris):
     else:
         drop_slow_links = False
 
-    if len(final_uris) > 1:
+    if len(final_uris) > 1 and VERBOSE:
         print(
             "Targeting %d random connections, additional %d for backup"
             % (wanted_connections, max(0, len(final_uris) - MAX_STREAMS))
@@ -174,6 +176,9 @@ def invoke_aria2(opts, final_uris):
         args.append("--lowest-speed-limit=%s" % wanted_minimum_link_speed)
     if opts.continue_flag:
         args.append("--continue")
+    if not VERBOSE:
+        args.append("--console-log-level=warn")
+        args.append("--summary-interval=0")
     args.append("--allow-overwrite=true")
     args.append("--max-tries=5")
     args.append("--max-file-not-found=2")
@@ -186,7 +191,8 @@ def invoke_aria2(opts, final_uris):
     args.extend(final_uris)
 
     # Invoke aria2
-    print("Running... # %s" % " ".join(args))
+    if VERBOSE:
+        print("Running... # %s" % " ".join(args))
     import subprocess
 
     return subprocess.call(args)
@@ -213,8 +219,9 @@ def _inner_main():
 
     final_uris, mirrors_involved = make_final_uris(opts.uri, supported_mirror_uris)
 
-    print_greeting()
-    print_invocation_details(opts)
+    if VERBOSE:
+        print_greeting()
+        print_invocation_details(opts)
 
     if mirrors_involved:
         print_mirror_details(supported_mirror_uris)
