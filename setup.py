@@ -39,8 +39,6 @@ setup(
     ],
     classifiers=[
         "Development Status :: 4 - Beta",
-        "License :: OSI Approved",
-        "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
         "Intended Audience :: End Users/Desktop",
         "Intended Audience :: System Administrators",
         "Programming Language :: Python",
