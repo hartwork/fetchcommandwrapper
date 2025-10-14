@@ -19,7 +19,7 @@ setup(
     url="https://github.com/hartwork/fetchcommandwrapper",
     author="Sebastian Pipping",
     author_email="sping@gentoo.org",
-    python_requires=">=3.9",
+    python_requires=">=3.10",
     setup_requires=[
         "setuptools>=38.6.0",  # for long_description_content_type
     ],
@@ -43,7 +43,6 @@ setup(
         "Intended Audience :: System Administrators",
         "Programming Language :: Python",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
